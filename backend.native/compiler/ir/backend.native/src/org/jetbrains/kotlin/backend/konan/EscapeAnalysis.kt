@@ -1312,7 +1312,7 @@ internal object EscapeAnalysis {
                             functionEAResultBuilder.addPointsTo(pointsToMask)
                         }
                         functionEAResultBuilder.escapes = escapes
-                        context.moduleEscapeAnalysisResult.addFunctionEAResults(functionEAResultBuilder)
+                        context.escapeAnalysisResult.value.addFunctionEAResults(functionEAResultBuilder)
                     }
         }
     }

@@ -24,6 +24,7 @@ interface KonanLibraryReader {
     val bitcodePaths: List<String>
     val linkerOpts: List<String>
     val escapeAnalysis: ByteArray?
+    val devirtualizationAnalysis: ByteArray?
     fun moduleDescriptor(specifics: LanguageVersionSettings): ModuleDescriptor
 }
 
