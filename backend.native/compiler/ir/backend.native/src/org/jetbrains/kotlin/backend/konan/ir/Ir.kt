@@ -21,9 +21,15 @@ import org.jetbrains.kotlin.backend.common.ir.Ir
 import org.jetbrains.kotlin.backend.common.ir.Symbols
 import org.jetbrains.kotlin.backend.konan.Context
 import org.jetbrains.kotlin.backend.konan.ValueType
-import org.jetbrains.kotlin.descriptors.PropertyDescriptor
+import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
+import org.jetbrains.kotlin.ir.expressions.IrCall
+import org.jetbrains.kotlin.ir.expressions.impl.IrCallWithIndexedArgumentsBase
+import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
+import org.jetbrains.kotlin.ir.symbols.IrFunctionSymbol
 import org.jetbrains.kotlin.ir.util.SymbolTable
+import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
+import org.jetbrains.kotlin.types.KotlinType
 import kotlin.properties.Delegates
 
 // This is what Context collects about IR.
@@ -65,4 +71,33 @@ internal class KonanSymbols(context: Context, val symbolTable: SymbolTable): Sym
 
 
     val scheduleImpl = symbolTable.referenceSimpleFunction(context.interopBuiltIns.scheduleImplFunction)
+}
+
+internal interface IrPrivateFunctionCall : IrCall {
+    val moduleName: String
+    val totalFunctions: Int
+    val functionIndex: Int
+}
+
+internal class IrPrivateFunctionCallImpl(startOffset: Int,
+                                         endOffset: Int,
+                                         type: KotlinType,
+                                         override val symbol: IrFunctionSymbol,
+                                         override val descriptor: FunctionDescriptor,
+                                         typeArguments: Map<TypeParameterDescriptor, KotlinType>?,
+                                         override val moduleName: String,
+                                         override val totalFunctions: Int,
+                                         override val functionIndex: Int
+) : IrPrivateFunctionCall,
+        IrCallWithIndexedArgumentsBase(startOffset, endOffset, type, symbol.descriptor.valueParameters.size, typeArguments) {
+
+    override val superQualifierSymbol: IrClassSymbol?
+        get() = null
+
+    override val superQualifier: ClassDescriptor?
+        get() = null
+
+    override fun <R, D> accept(visitor: IrElementVisitor<R, D>, data: D): R =
+            visitor.visitCall(this, data)
+
 }
