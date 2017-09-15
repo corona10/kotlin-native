@@ -75,6 +75,9 @@ class K2NativeCompilerArguments : CommonCompilerArguments() {
     @field:Argument(value = "-runtime", valueDescription = "<path>", description = "Override standard 'runtime.bc' location")
     @JvmField var runtimeFile: String? = null
 
+    @field:Argument(value = "-module_name", valueDescription = "<name>", description = "Module name")
+    @JvmField var moduleName: String? = null
+
     @field:Argument(value = "-target", valueDescription = "<target>", description = "Set hardware target")
     @JvmField var target: String? = null
 

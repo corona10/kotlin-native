@@ -25,6 +25,10 @@ import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.OverridingUtil
 import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperClassOrAny
 
+internal val FunctionDescriptor.canBeCalledVirtually: Boolean
+            // We check that either method is open, or one of declarations it overrides is open.
+        get() = isOverridable || DescriptorUtils.getAllOverriddenDeclarations(this).any { it.isOverridable }
+
 internal class OverriddenFunctionDescriptor(val descriptor: FunctionDescriptor, overriddenDescriptor: FunctionDescriptor) {
     val overriddenDescriptor = overriddenDescriptor.original
 
@@ -35,9 +39,7 @@ internal class OverriddenFunctionDescriptor(val descriptor: FunctionDescriptor, 
         get() = descriptor.target.bridgeDirectionsTo(overriddenDescriptor)
 
     val canBeCalledVirtually: Boolean
-            // We check that either method is open, or one of declarations it overrides is open.
-        get() = overriddenDescriptor.isOverridable
-                || DescriptorUtils.getAllOverriddenDeclarations(overriddenDescriptor).any { it.isOverridable }
+        get() = overriddenDescriptor.canBeCalledVirtually
 
     val inheritsBridge: Boolean
         get() = !descriptor.kind.isReal
