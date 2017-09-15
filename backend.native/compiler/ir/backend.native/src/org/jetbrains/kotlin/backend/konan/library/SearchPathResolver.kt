@@ -23,6 +23,7 @@ import org.jetbrains.kotlin.konan.file.File
 interface SearchPathResolver {
     val searchRoots: List<File>
     fun resolve(givenPath: String): File
+    fun defaultLinks(nostdlib: Boolean): List<File>
 }
 
 class KonanLibrarySearchPathResolver(repositories: List<String>,
@@ -72,5 +73,14 @@ class KonanLibrarySearchPathResolver(repositories: List<String>,
 
     private val File.klib
         get() = File(this, "klib")
+
+    // The libraries from the default root are linked autimatically.
+    val defaultRoot: File?
+        get() = if (distHead?.exists ?: false) distHead else null
+
+    override fun defaultLinks(nostdlib: Boolean): List<File> 
+        = defaultRoot?.listFiles.orEmpty()
+            .filterNot { nostdlib && it.name.removeSuffixIfPresent(".klib") == "stdlib" }
+            .map { File(it.absolutePath) }
 }
 

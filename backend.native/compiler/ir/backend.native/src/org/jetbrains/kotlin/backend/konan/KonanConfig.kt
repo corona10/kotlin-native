@@ -75,18 +75,15 @@ class KonanConfig(val project: Project, val configuration: CompilerConfiguration
         get() = outputName
 
     private val libraryNames: List<String>
-        get() {
-            val fromCommandLine = configuration.getList(KonanConfigKeys.LIBRARY_FILES)
-            if (configuration.get(KonanConfigKeys.NOSTDLIB) ?: false) {
-                return fromCommandLine
-            }
-            return fromCommandLine + "stdlib"
-        }
+        get() = configuration.getList(KonanConfigKeys.LIBRARY_FILES)
 
     private val repositories = configuration.getList(KonanConfigKeys.REPOSITORIES)
     private val resolver = KonanLibrarySearchPathResolver(repositories, distribution.klib, distribution.localKonanDir)
     private val librariesFound: List<File> by lazy {
-        val resolvedLibraries = libraryNames.map{it -> resolver.resolve(it)}
+        val resolvedLibraries = libraryNames.map { it -> resolver.resolve(it) } + 
+        if (!configuration.getBoolean(KonanConfigKeys.NODEFAULTLIBS)) {
+            resolver.defaultLinks(configuration.getBoolean(KonanConfigKeys.NOSTDLIB))
+        } else emptyList()
         checkLibraryDuplicates(resolvedLibraries)
         resolvedLibraries
     }
